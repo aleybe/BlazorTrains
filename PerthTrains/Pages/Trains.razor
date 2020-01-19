@@ -1,0 +1,131 @@
+﻿@page "/trains"
+
+@using PerthTrains.Data
+@inject TrainDataService TrainService
+
+<h1>Train Times</h1>
+<p>This page allows us to get the train times from the Transperth Trains API taken from their Website. </p>
+<p>Defaults to all trains leaving from Mandurah to Perth :)</p>
+
+<div class="container train-input-container">
+    <div class="row">
+        <div class="col-sm-3 train">
+            <input class="form-control" id="searchStation" @onkeyup="EnterKeySearch" @bind="DepartingStation"/>
+        </div>
+        <div class="col-sm-2">
+            <button class="btn btn-primary" @onclick="SearchStation">Lookup Times</button>
+        </div>
+    </div>
+
+</div>
+
+
+@if (_trainTimes == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th @onclick="@(() => SortByColumn("DestinationStation"))">Destination</th>
+            <th @onclick="@(() => SortByColumn("DepartureTime"))">Departure</th>
+            <th @onclick="@(() => SortByColumn("Platform"))">Platform</th>
+            <th @onclick="@(() => SortByColumn("TrainLine"))">Line Name</th>
+            <th @onclick="@(() => SortByColumn("NumberOfCars"))">Number of Cars</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var traintime in _trainTimes)
+        {
+            <tr>
+                <td>@traintime.DestinationStation</td>
+                <td>@traintime.DepartureTime</td>
+                <td>@traintime.Platform</td>
+                <td>@traintime.TrainLine</td>
+                <td>@traintime.NumberOfCars</td>
+            </tr>
+        }
+
+        </tbody>
+    </table>
+}
+
+@code {
+
+    private bool sortedAscending;
+    private string activeSortedColumn;
+
+    private TrainData[] _trainTimes;
+    private string DepartingStation;
+
+    protected async Task SearchStation()
+    {
+        if (String.IsNullOrEmpty(DepartingStation))
+        {
+            _trainTimes = null;
+            return;
+        }
+
+        if (!DepartingStation.Contains("Stn"))
+        {
+        // Append Stn as we Forgot it S:
+        // Make a duplicate as we don't want to reverse bind this.
+
+            var fixedDepartingStationValue = DepartingStation + " Stn";
+            _trainTimes = await TrainDataService.GetTrainsForAllLines(fixedDepartingStationValue);
+            _trainTimes = _trainTimes.OrderBy(c => c.DestinationStation).ToArray();
+        }
+    }
+
+    private void EnterKeySearch(UIKeyboardEventArgs eventArgs)
+    {
+     
+        
+        
+    }
+    
+
+    private void SortByColumn(string columnName) // Todo Clean this up so theres' not so much repeated logic :)
+    {
+        if (columnName == activeSortedColumn)
+        {
+            // This column is already sorted we need to flip the sort.
+            sortedAscending = !sortedAscending; // Now equals whatever it was not..
+
+            if (sortedAscending)
+            {
+                _trainTimes = _trainTimes
+                    .OrderByDescending(c =>
+                        c.GetType().GetProperty(columnName).GetValue(c, null))
+                    .ToArray();
+            }
+            else // We are descending we need to sort ascending
+            {
+                _trainTimes = _trainTimes
+                    .OrderBy(c =>
+                        c.GetType().GetProperty(columnName).GetValue(c, null))
+                    .ToArray();
+            }
+        }
+        else
+        {
+            activeSortedColumn = columnName;
+            sortedAscending = true;
+            _trainTimes = _trainTimes
+                .OrderBy(c =>
+                    c.GetType().GetProperty(columnName).GetValue(c, null))
+                .ToArray();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        sortedAscending = false; // on page load we will want to sort ascending.
+        _trainTimes = await TrainDataService.GetTrainDataAsync("Mandurah Stn", "Mandurah Line");
+    }
+
+}
