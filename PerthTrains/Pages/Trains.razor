@@ -10,7 +10,7 @@
 <div class="container train-input-container">
     <div class="row">
         <div class="col-sm-3 train">
-            <input class="form-control" id="searchStation" @onkeyup="EnterKeySearch" @bind="DepartingStation"/>
+            <input class="form-control" id="searchStation" @bind="DepartingStation"/>
         </div>
         <div class="col-sm-2">
             <button class="btn btn-primary" @onclick="SearchStation">Lookup Times</button>
@@ -80,14 +80,6 @@ else
             _trainTimes = _trainTimes.OrderBy(c => c.DestinationStation).ToArray();
         }
     }
-
-    private void EnterKeySearch(UIKeyboardEventArgs eventArgs)
-    {
-     
-        
-        
-    }
-    
 
     private void SortByColumn(string columnName) // Todo Clean this up so theres' not so much repeated logic :)
     {
