@@ -1,2 +1,11 @@
-bin\
-obj\
+*/bin/
+*/obj/
+*/node_modules/
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+.git
+.gitignore
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+.git
+.gitignore
