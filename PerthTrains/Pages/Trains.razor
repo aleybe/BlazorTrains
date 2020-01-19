@@ -78,6 +78,10 @@ else
             var fixedDepartingStationValue = DepartingStation + " Stn";
             _trainTimes = await TrainDataService.GetTrainsForAllLines(fixedDepartingStationValue);
             _trainTimes = _trainTimes.OrderBy(c => c.DestinationStation).ToArray();
+        } else {
+            // We don't need to fix anything as it already has "Stn"
+            _trainTimes = await TrainDataService.GetTrainsForAllLines(DepartingStation);
+            _trainTimes = _trainTimes.OrderBy(c => c.DestinationStation).ToArray();
         }
     }
 
