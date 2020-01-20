@@ -1,18 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Mime;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Microsoft.AspNetCore.Mvc.Formatters.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using JsonSerializer = System.Text.Json.JsonSerializer;
+
 
 namespace PerthTrains.Data
 {
@@ -20,10 +14,10 @@ namespace PerthTrains.Data
     {
         public static async Task<TrainData[]> GetTrainsForAllLines(string trainStation)
         {
-            List<string> TrainLines = new List<string>{"Mandurah Line", "Armadale Line", "Thornlie Line", "Fremantle Line", "Joondalup Line", "Midland Line"};
-            
+            List<string> TrainLines = new List<string> { "Mandurah Line", "Armadale Line", "Thornlie Line", "Fremantle Line", "Joondalup Line", "Midland Line" };
+
             List<TrainData> returnTrainData = new List<TrainData>();
-            
+
             foreach (var trainline in TrainLines)
             {
                 // Get the trains for this line.
@@ -33,11 +27,11 @@ namespace PerthTrains.Data
 
             return await Task.FromResult(returnTrainData.ToArray());
         }
-        
+
         public static async Task<TrainData[]> GetTrainDataAsync(string trainStation, string trainLine)
         {
             HttpClient client = new HttpClient();
-            
+
             try
             {
 
@@ -60,7 +54,7 @@ namespace PerthTrains.Data
                 HttpResponseMessage response = await client.SendAsync(request);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
-                
+
                 var results1 = JsonConvert.DeserializeObject<JObject>(responseBody);
 
                 var returnResults = results1["data"]["StatusDetailList"]
@@ -80,7 +74,7 @@ namespace PerthTrains.Data
             {
                 Console.WriteLine("\nException Caught!");
                 Console.WriteLine("Message :{0} ", e.Message);
-                return new TrainData[] {};
+                return new TrainData[] { };
             }
         }
     }
